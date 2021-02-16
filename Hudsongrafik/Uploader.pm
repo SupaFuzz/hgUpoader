@@ -16,12 +16,12 @@ sub handler {
     $r->content_type('text/plain');
     print "test!\n";
 
-    foreach my $upload ($r->upload) {
+    foreach my $upload ($r->upload()) {
      my $filename  = $upload->filename;
      my $size    = $upload->size;
 
      $r->print("You sent me a file named $filename, $size bytes<br>");
-     
+
     }
     return Apache2::Const::OK;
 }
