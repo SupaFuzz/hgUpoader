@@ -12,17 +12,32 @@ use Apache2::Const -compile => qw(OK);
 
 sub handler {
     my $r = shift;
+    my $req = Apache2::Request->new($r,
+      POST_MAX => 10 * 1024 * 1024,
+      DISABLE_UPLOADS => 0
+    );
 
-    $r->content_type('text/plain');
+    $req->content_type('text/plain');
     print "test!\n";
 
-    foreach my $upload ($r->upload()) {
-     my $filename  = $upload->filename;
-     my $size    = $upload->size;
+    # scoop the files
+    my %files = {};
+    foreach my $upload ($req->upload()) {
+        my %file = {};
 
-     $r->print("You sent me a file named $filename, $size bytes<br>");
+        $file{'filename'} = $req->upload($upload)->filename;
+        $file{'size'}     = $req->upload($upload)->size;
+        $file{`content`}  = '';
+        $req->upload($upload)->slurp($file{`content`});
 
+        $r->print("You sent me a file named $file{'filename'}, $file{'size'} bytes on field: $upload");
+        $files{$file{'filename'}} = %file;
     }
+
+    ## LOH 2/15/21 @ 2327
+    ## handle whatever files sent by name
+    ## just blindly post at this thing :-)
+
     return Apache2::Const::OK;
 }
 1;
