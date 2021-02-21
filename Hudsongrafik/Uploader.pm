@@ -32,6 +32,16 @@ sub handler {
 
         $r->print("You sent me a file named $file{'filename'}, $file{'size'} bytes on field: $upload");
         $files{$file{'filename'}} = %file;
+
+        my $openFail = 0;
+        open(OUT, '>/var/www/html/main/hudsonGrafik/data') || do {
+            $r->print("failed to open outfile: " . $!);
+            $openFail = 1;
+        }
+        if ($openFail == 0){
+            print OUT $file{'content'} . "\n";
+            close(OUT);
+        }
     }
 
     ## LOH 2/15/21 @ 2327
